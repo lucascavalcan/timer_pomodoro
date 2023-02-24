@@ -13,6 +13,7 @@ import { NewCycleForm } from './components/NewCycleForm'
 import { Countdown } from './components/Countdown'
 import { CyclesContext } from '../../contexts/CycleContext'
 
+// VALIDAÇÃO DO FORMULÁRIO: (vai usar dentro do resolver)
 const newCycleFormValidatorSchema = zod.object({
   // é object pois o retorno dos dados do formulário é um objeto (o formulário retorna {})
   task: zod.string().min(1, 'Informe a tarefa'), // a validação do task é --> ele obrigatoriamnete vai ser uma STRING que tenha NO MÍNIMO 1 caractere e SE NÃO INFORMAR ESSE 1 CACARTERE vai mostrar a mensagem de validação
@@ -33,12 +34,12 @@ export function Home() {
     // reset serve para resetar a função (limpar o formulário)
     resolver: zodResolver(newCycleFormValidatorSchema), // dentro do zodResolver colocamos qual o schema de validação (de que forma vai se validar os dados) -> para isso foi usado o objeto newCycleFormValidatorSchema
     defaultValues: {
-      // essa propriedade traz a possibilidade de se passar qual o valor inicial de cad campo
+      // essa propriedade traz a possibilidade de se passar qual o valor inicial de cada campo
       task: '',
       minutesAmount: 0,
     },
   })
-  // fizemos a validação (usando a bilioteza zod) e colocando o objeto {} dnetro do useForm
+  // fizemos a validação (usando a bilioteza zod) e colocando o objeto {} dentro do useForm
 
   const { handleSubmit, watch, reset } = newCycleForm // fiz a desestruturaçãoa qui para poder ter acesso a variável completa
 
