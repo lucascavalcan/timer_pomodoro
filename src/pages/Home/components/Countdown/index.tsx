@@ -25,7 +25,7 @@ export function Countdown() {
         const secondsDifference = differenceInSeconds(
           new Date(),
           activeCycle.startDate,
-        ) // vai-se usar a função differenceInSeconds da biblioteca 'date-fns' --> diferença em segundos da data atual (new Date) e da data que o ciclo começou ()
+        ) // vai-se usar a função differenceInSeconds da biblioteca 'date-fns' --> diferença em segundos da data atual (new Date) e da data que o ciclo começou (activeCycle.startDate)
 
         if (secondsDifference >= totalSeconds) {
           markCurrentCycleAsFinished()
