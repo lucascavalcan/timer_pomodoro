@@ -6,7 +6,7 @@ import { useFormContext } from 'react-hook-form'
 export function NewCycleForm() {
   const { activeCycle } = useContext(CyclesContext)
   // o register determina quais são os campos desse formulário. Vejamos:
-  const { register } = useFormContext() // fiz essa inporção devido ao uso do FormProvider envolta do NewCycleForm que clonou as propriedades do newCycleForm
+  const { register } = useFormContext() // fiz essa importação devido ao uso do FormProvider envolta do NewCycleForm que clonou as propriedades do newCycleForm
 
   return (
     <FormConatiner>

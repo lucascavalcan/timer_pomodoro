@@ -27,6 +27,7 @@ interface CycleContextType {
 }
 
 export const CyclesContext = createContext({} as CycleContextType)
+// dentro do createContext (função que cria o context) coloca-se qual o valor inciial do contexto
 
 interface CyclesContextproviderProps {
   children: ReactNode // essa children que é passada como props é o router que vai ficar dentro do contexto CyclesContextProvider
