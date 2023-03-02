@@ -1,18 +1,16 @@
-import { createContext, ReactNode, useState } from 'react'
+import { createContext, ReactNode, useReducer, useState } from 'react'
+import {
+  ActionTypes,
+  addNewCycleAction,
+  interruptCurrentCycleAction,
+  markCurrentFunctionAsFinishedAction,
+} from '../reducers/cycles/actions'
+import { Cycle, cyclesReducer } from '../reducers/cycles/reducer'
 
 interface CreateCycleData {
   // interface necessária relativa aos dados usados para poder criar um novo cycle
   task: string
   minutesAmount: number
-}
-
-interface Cycle {
-  id: string
-  task: string
-  minutesAmount: number
-  startDate: Date // o momento em que o ciclo ficou ativo --> para fazer o timer funcionar
-  interruptedDate?: Date // relativo aos ciclos que foram interrompidos (para mostrar no histórico)
-  finishedDate?: Date // quando o ciclo encerrou
 }
 
 interface CycleContextType {
@@ -27,7 +25,7 @@ interface CycleContextType {
 }
 
 export const CyclesContext = createContext({} as CycleContextType)
-// dentro do createContext (função que cria o context) coloca-se qual o valor inciial do contexto
+// dentro do createContext (função que cria o context) coloca-se qual o valor inicial do contexto
 
 interface CyclesContextproviderProps {
   children: ReactNode // essa children que é passada como props é o router que vai ficar dentro do contexto CyclesContextProvider
@@ -36,17 +34,26 @@ interface CyclesContextproviderProps {
 export function CyclesContextProvider({
   children,
 }: CyclesContextproviderProps) {
-  const [cycles, setCycles] = useState<Cycle[]>([])
-  // estado para definir qual o id do ciclo ativo (pois é apenas um ciclo que fica ativo por vez):
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null) // ou tá nulo(inativo) ou ativo
+  const [cyclesState, dispatch] = useReducer(cyclesReducer, {
+    cycles: [],
+    activeCycleId: null,
+  })
+
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(0) // o tanto de segundos que se passaram desde que o ciclo começou
+
+  // de dentro do cyclesState eu posso buscar informações específicas (como os cycles e o activeCycleId)
+  const { cycles, activeCycleId } = cyclesState
+
+  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+  // essa variável acima vai dizer qual o ciclo ativo --> vai percorrer todos os ciclos (cycles) e dizer qual o ativo (com base no id do state activeCycle - dizer qual o ciclo com o msm id desse ciclo ativo)
 
   function setSecondsPassed(seconds: number) {
     setAmountSecondsPassed(seconds)
   }
 
   function markCurrentCycleAsFinished() {
-    setCycles((state) =>
+    dispatch(markCurrentFunctionAsFinishedAction())
+    /* setCycles((state) =>
       state.map((cycle) => {
         if (cycle.id === activeCycleId) {
           return { ...cycle, finishedDate: new Date() }
@@ -54,11 +61,8 @@ export function CyclesContextProvider({
           return cycle
         }
       }),
-    )
+    ) */
   }
-
-  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
-  // essa variável acima vai dizer qual o ciclo ativo --> vai percorrer todos os ciclos (cycles) e dizer qual o ativo (com base no id do state activeCycle - dizer qual o ciclo com o msm id desse ciclo ativo)
 
   function createNewCycle(data: CreateCycleData) {
     const newCycle: Cycle = {
@@ -68,14 +72,17 @@ export function CyclesContextProvider({
       startDate: new Date(), // data atual (data que o ciclo iniciou)
     }
 
-    setCycles((state) => [...state, newCycle]) // sempre que uma alteração de estado depender do estado anterior, usa-se arrow function (poderia simplemsnete fazer ([...cycles], newCycle]) )
-    setActiveCycleId(newCycle.id)
+    // dentro do dispatch, é preciso enviar uma informação para que lá dentro do reducer, seja possível distinguir a ação realizada pelo usuário
+    dispatch(addNewCycleAction(newCycle)) // função importada de actions/cycles/reducers
+
+    // setCycles((state) => [...state, newCycle]) // sempre que uma alteração de estado depender do estado anterior, usa-se arrow function (poderia simplemsnete fazer ([...cycles], newCycle]) )
     setAmountSecondsPassed(0) // voltando o numero de segundos que passaram para 0
   }
 
   // voltar para o estado inicial da aplicação:
   function interruptCurrentCycle() {
-    setCycles((state) =>
+    dispatch(interruptCurrentCycleAction())
+    /* setCycles((state) =>
       state.map((cycle) => {
         if (cycle.id === activeCycleId) {
           return { ...cycle, interruptedDate: new Date() }
@@ -83,8 +90,7 @@ export function CyclesContextProvider({
           return cycle
         }
       }),
-    )
-    setActiveCycleId(null) // anotar se o ciclo foi interrompido ou não (para mostrar no histórico depois)
+    ) */
   }
 
   return (
