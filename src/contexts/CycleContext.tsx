@@ -1,4 +1,10 @@
-import { createContext, ReactNode, useReducer, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react'
 import {
   ActionTypes,
   addNewCycleAction,
@@ -31,6 +37,11 @@ interface CyclesContextproviderProps {
   children: ReactNode // essa children que é passada como props é o router que vai ficar dentro do contexto CyclesContextProvider
 }
 
+// useReducer recebe dois parametros: uma função e qual o valor inicial da variável [] (no caso, a variável cyclesState)
+// a função (1º parametro) recebe mais dois parâmetros: state (valor atual, em TEMPO REAL da variável - cyclesState) e action (qual ação o usuário está querendo realizar de alteração dentro da variável - algo único para alterar o estado)
+// dentro da função, vai se dar um return state (para retornar o estado atual da variável)
+// a action indica qual ação quer fazer para atualizar o estado --> por isso, eu preciso de algo para DISPARAR essa ação (dispatch)
+// dispatch: usa-se ele (ao contrário do setCycles no useState) pois ela não é uma função que altera o estado diretamente --> ele dispara uma ação (action) que é quem vai alterar o estado de fato
 export function CyclesContextProvider({
   children,
 }: CyclesContextproviderProps) {
@@ -40,6 +51,13 @@ export function CyclesContextProvider({
   })
 
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(0) // o tanto de segundos que se passaram desde que o ciclo começou
+
+  // salvando o estado no storage
+  useEffect(() => {
+    const stateJSON = JSON.stringify(cyclesState)
+
+    localStorage.setItem('@ignite-timer:cycles-state-1.0.0', stateJSON) // vai dar um nome ('@ignite-timer:cycles-state-1.0.0') e salvar um valor (stateJSON)
+  }, [cyclesState])
 
   // de dentro do cyclesState eu posso buscar informações específicas (como os cycles e o activeCycleId)
   const { cycles, activeCycleId } = cyclesState
